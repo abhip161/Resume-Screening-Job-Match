@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Resume Screener</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="bg-light">
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center py-3">
+                    <h2 class="mb-0">🚀 AI Resume Screener & Job Matcher</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form id="analyzeForm" enctype="multipart/form-data">
+                        <div class="mb-4">
+                            <label for="resume" class="form-label fw-bold">Upload Resume (PDF)</label>
+                            <input type="file" class="form-control" id="resume" name="resume" accept=".pdf" required>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="job_description" class="form-label fw-bold">Job Description</label>
+                            <textarea class="form-control" id="job_description" name="job_description" rows="6" placeholder="Paste the job description here..." required></textarea>
+                        </div>
+
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">Analyze Match</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results" class="card shadow-sm mt-4 d-none">
+                <div class="card-body p-4">
+                    <h3 class="text-center mb-4">Analysis Results</h3>
+                    
+                    <div class="text-center mb-4">
+                        <div class="display-4 fw-bold text-primary" id="matchPercentage">0%</div>
+                        <p class="text-muted">Match Score</p>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="text-success"><i class="bi bi-check-circle-fill"></i> Matched Skills</h5>
+                        <div id="matchedSkills" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h5 class="text-danger"><i class="bi bi-x-circle-fill"></i> Missing Skills</h5>
+                        <div id="missingSkills" class="d-flex flex-wrap gap-2"></div>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <strong>AI Insight:</strong> <span id="aiExplanation"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Loading Spinner -->
+            <div id="loading" class="text-center mt-4 d-none">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Analyzing resume against job description...</p>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('analyzeForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    const submitBtn = document.getElementById('submitBtn');
+    const loading = document.getElementById('loading');
+    const results = document.getElementById('results');
+
+    // UI State: Loading
+    submitBtn.disabled = true;
+    loading.classList.remove('d-none');
+    results.classList.add('d-none');
+
+    try {
+        const response = await fetch('/analyze', {
+            method: 'POST',
+            body: formData
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Update UI with Results
+            document.getElementById('matchPercentage').textContent = data.match_percentage + '%';
+            
+            const matchedContainer = document.getElementById('matchedSkills');
+            matchedContainer.innerHTML = data.matched_skills.map(skill => 
+                `<span class="badge bg-success">${skill}</span>`
+            ).join('');
+
+            const missingContainer = document.getElementById('missingSkills');
+            missingContainer.innerHTML = data.missing_skills.map(skill => 
+                `<span class="badge bg-danger">${skill}</span>`
+            ).join('');
+
+            document.getElementById('aiExplanation').textContent = data.explanation;
+
+            results.classList.remove('d-none');
+        } else {
+            alert(data.error || 'An error occurred during analysis');
+        }
+
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to connect to the server.');
+    } finally {
+        submitBtn.disabled = false;
+        loading.classList.add('d-none');
+    }
+});
+</script>
+
+</body>
+</html>
