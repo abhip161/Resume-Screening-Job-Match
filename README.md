@@ -1,25 +1,47 @@
-# GenAI Resume Screener
+# Resume Screening & Job Match Application
 
-A Python Flask application that uses OpenAI to screen resumes against job descriptions.
+A Flask-based web application that compares a candidate’s resume with a job description and provides:
+- Overall match percentage
+- Matched skills
+- Missing skills
+- A concise explanation of alignment
 
-## Setup
+The system uses **local transformer embeddings** for semantic similarity and **rule-based logic** for skill gap analysis, without relying on any external or paid AI APIs.
 
-1. The dependencies are already installed.
-2. Ensure `OPENAI_API_KEY` is set in the Secrets (Tools > Secrets).
-3. Click "Run" to start the application.
+---
 
-## Usage
+## 🚀 Features
 
-1. Upload a PDF resume.
-2. Paste the Job Description.
-3. Click "Analyze Match".
-4. View the match percentage and AI-generated insights.
+- Upload resume in PDF format
+- Paste job description text
+- Semantic similarity scoring using transformer embeddings
+- Skill matching and gap identification
+- Simple, clean UI
+- Fully local processing (no API keys required)
 
-## Tech Stack
+---
 
-- Python 3.11
-- Flask
-- OpenAI API (via Replit AI or direct key)
-- PyPDF2
-- scikit-learn
-- Bootstrap 5
+## 🧠 How It Works
+
+1. Resume text is extracted from the uploaded PDF.
+2. Resume and job description are converted into vector embeddings using a local transformer model.
+3. Cosine similarity is used to compute an overall match percentage.
+4. Skills are extracted using a predefined rule-based skill list.
+5. Results are displayed with a short, human-readable explanation.
+
+> Note: The match score represents **semantic similarity**, while missing skills are shown separately to highlight gaps.
+
+---
+
+## 🛠️ Tech Stack
+
+- **Backend:** Python, Flask  
+- **ML / NLP:** sentence-transformers (all-MiniLM-L6-v2)  
+- **Similarity:** scikit-learn (cosine similarity)  
+- **PDF Processing:** PyPDF2  
+- **Frontend:** HTML, Bootstrap  
+
+---
+
+## 📂 Project Structure
+
